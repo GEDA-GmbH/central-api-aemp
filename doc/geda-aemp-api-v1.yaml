@@ -1,0 +1,441 @@
+openapi: 3.0.3
+info:
+  title: GEDA AEMP 2.0 API
+  version: 1.1.0
+  description: 'AEMP / ISO 15143-3 oriented fleet snapshot endpoint for GEDA equipment.
+
+
+    Authentication uses a static Bearer Token generated in GEDA Central.
+
+
+    The public endpoint is `/aemp/equipment/status/{page}`. Optional GEDA metadata such as OperationStatus, PlatformElevated,
+
+    AccessSystemState and DiagnosticStates can be requested with `addMetadata=true`.
+
+
+    Available datapoints depend on the type of the machine and the installed IoT-hardware.
+
+    Also the refresh time can vary, e. g. the GEDA IoT-Box Premium delivers "real time" insight.
+    AEMP Data for the GEDA IoT-Box Standard is provided every 15 min.
+
+
+    The Fleet endpoint provides snapshot data only. Time-series data is not exposed by this endpoint.
+
+    '
+  contact:
+    name: GEDA Service Team
+    url: https://central.geda.de
+servers:
+- url: https://central.geda.de/api
+  description: GEDA Central
+security:
+- bearerAuth: []
+paths:
+  /aemp/equipment/status/{page}:
+    get:
+      tags:
+      - fleet
+      summary: Get equipment status snapshot
+      description: 'Returns one page of the equipment status snapshot for all machines authorized by the Bearer Token.
+
+
+        Pagination is path-based using the `{page}` suffix. Page numbering starts at 1. Page size is 100.
+
+
+        Use `addMetadata=true` to include optional GEDA metadata fields such as OperationStatus, PlatformElevated,
+
+        AccessSystemState and DiagnosticStates.
+
+        '
+      operationId: getEquipmentStatusSnapshot
+      parameters:
+      - $ref: '#/components/parameters/page'
+      - $ref: '#/components/parameters/addMetadata'
+      - $ref: '#/components/parameters/machineIdentifier'
+      responses:
+        '200':
+          description: Equipment status snapshot page
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FleetResponse'
+              examples:
+                snapshotWithMetadata:
+                  summary: Snapshot page with optional GEDA metadata
+                  value:
+                    Equipment:
+                    - EquipmentHeader:
+                        OEMName: GEDA
+                        Model: GEDA 1500 Z/ZP
+                        EquipmentID: '373839'
+                        SerialNumber: '000123-98765'
+                      Location: null
+                      CumulativeOperatingHours:
+                        datetime: '2026-06-03T14:14:53.788Z'
+                        Hour: 518.84
+                      AccessSystemState:
+                        StatusName: AccessSystemActive
+                        AccessSystemActive: true
+                        datetime: '2026-06-03T14:14:53.788Z'
+                      OperationStatus:
+                        StatusName: OperationStatus
+                        Value: false
+                        Status: false
+                        datetime: '2026-06-03T14:14:53.788Z'
+                      PlatformElevated:
+                        StatusName: PlatformElevated
+                        Value: false
+                        Status: false
+                        datetime: '2026-06-03T14:14:53.788Z'
+                      DiagnosticStates:
+                      - StatusName: Operation
+                        Value: 1
+                        Status: true
+                        datetime: '2026-06-03T14:14:53.788Z'
+                      - StatusName: EmergencyStop
+                        Value: 0
+                        Status: false
+                        datetime: '2026-06-03T14:14:53.788Z'
+                      - StatusName: SafetyStopUpDown
+                        Value: 0
+                        Status: false
+                        datetime: '2026-06-03T14:14:53.788Z'
+                      - StatusName: SafetyBrake
+                        Value: 0
+                        Status: false
+                        datetime: '2026-06-03T14:14:53.788Z'
+                      - StatusName: UnderRunProtection
+                        Value: 0
+                        Status: false
+                        datetime: '2026-06-03T14:14:53.788Z'
+                      - StatusName: AssemblyPlank
+                        Value: 0
+                        Status: false
+                        datetime: '2026-06-03T14:14:53.788Z'
+                      - StatusName: AssemblyGuard
+                        Value: 0
+                        Status: false
+                        datetime: '2026-06-03T14:14:53.788Z'
+                      - StatusName: CableHolder
+                        Value: 0
+                        Status: false
+                        datetime: '2026-06-03T14:14:53.788Z'
+                      - StatusName: MastEnd
+                        Value: 0
+                        Status: false
+                        datetime: '2026-06-03T14:14:53.788Z'
+                      - StatusName: MastMonitoring
+                        Value: 0
+                        Status: false
+                        datetime: '2026-06-03T14:14:53.788Z'
+                      - StatusName: Door1
+                        Value: 0
+                        Status: false
+                        datetime: '2026-06-03T14:14:53.788Z'
+                      - StatusName: Door2
+                        Value: 0
+                        Status: false
+                        datetime: '2026-06-03T14:14:53.788Z'
+                      - StatusName: LimitSwitchUp
+                        Value: 0
+                        Status: false
+                        datetime: '2026-06-03T14:14:53.788Z'
+                      - StatusName: LimitSwitchDown
+                        Value: 1
+                        Status: true
+                        datetime: '2026-06-03T14:14:53.788Z'
+                      - StatusName: LubricationDeviceEmpty
+                        Value: 0
+                        Status: false
+                        datetime: '2026-06-03T14:14:53.788Z'
+                      - StatusName: Overload
+                        Value: 0
+                        Status: false
+                        datetime: '2026-06-03T14:14:53.788Z'
+                      - StatusName: LockActive
+                        Value: 0
+                        Status: false
+                        datetime: '2026-06-03T14:14:53.788Z'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+components:
+  parameters:
+    page:
+      name: page
+      in: path
+      required: true
+      description: One-based page number for equipment snapshot pagination.
+      schema:
+        type: integer
+        minimum: 1
+        example: 1
+    addMetadata:
+      name: addMetadata
+      in: query
+      required: false
+      description: Include optional GEDA metadata fields in the equipment snapshot response.
+      schema:
+        type: boolean
+        default: false
+        example: true
+    machineIdentifier:
+      name: machineIdentifier
+      in: query
+      required: false
+      description: Filter by unique GEDA SerialNumber or customer-provided EquipmentID, if supported for the token/tenant.
+      schema:
+        type: string
+        example: '373839'
+  schemas:
+    FleetResponse:
+      type: object
+      description: Single page of the equipment status snapshot.
+      properties:
+        Equipment:
+          type: array
+          description: Equipment records for this page.
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/Equipment'
+      required:
+      - Equipment
+    Equipment:
+      type: object
+      description: Single equipment record.
+      properties:
+        EquipmentHeader:
+          $ref: '#/components/schemas/EquipmentHeader'
+        Location:
+          allOf:
+          - $ref: '#/components/schemas/Location'
+          nullable: true
+          description: Last known location. Can be null if no location is available.
+        CumulativeOperatingHours:
+          $ref: '#/components/schemas/CumulativeOperatingHours'
+        CumulativeLoadCount:
+          $ref: '#/components/schemas/CumulativeLoadCount'
+        AccessSystemState:
+          $ref: '#/components/schemas/AccessSystemState'
+        OperationStatus:
+          $ref: '#/components/schemas/BooleanStatus'
+        PlatformElevated:
+          $ref: '#/components/schemas/BooleanStatus'
+        DiagnosticStates:
+          type: array
+          description: GEDA diagnostic/status states included when addMetadata=true. Not available for all machines.
+          items:
+            $ref: '#/components/schemas/DiagnosticState'
+      required:
+      - EquipmentHeader
+      - Location
+      - CumulativeOperatingHours
+    EquipmentHeader:
+      type: object
+      description: Equipment identification header.
+      properties:
+        OEMName:
+          type: string
+          description: Original equipment manufacturer.
+          example: GEDA
+        Model:
+          type: string
+          nullable: true
+          description: Machine model.
+          example: GEDA 1500 Z/ZP
+        EquipmentID:
+          type: string
+          nullable: true
+          description: Customer-provided equipment identifier.
+          example: '373839'
+        SerialNumber:
+          type: string
+          description: Unique GEDA serial number.
+          example: '000123-98765'
+      required:
+      - OEMName
+      - SerialNumber
+    Location:
+      type: object
+      description: Last known WGS84 location.
+      properties:
+        datetime:
+          type: string
+          format: date-time
+          example: '2026-06-03T12:18:17.069Z'
+        Latitude:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+          example: 48.667943118317964
+        Longitude:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+          example: 10.812219958498517
+        Altitude:
+          type: number
+          format: double
+          nullable: true
+        AltitudeUnits:
+          type: string
+          nullable: true
+          enum:
+          - metre
+          - foot
+      required:
+      - datetime
+      - Latitude
+      - Longitude
+    CumulativeOperatingHours:
+      type: object
+      properties:
+        datetime:
+          type: string
+          format: date-time
+          example: '2026-06-03T14:14:53.788Z'
+        Hour:
+          type: number
+          format: double
+          minimum: 0
+          description: Cumulative operating hours as decimal hours.
+          example: 518.84
+      required:
+      - datetime
+      - Hour
+    CumulativeLoadCount:
+      type: object
+      description: Cumulative number of hoist rides. Optional; not available for all machines.
+      properties:
+        datetime:
+          type: string
+          format: date-time
+        Count:
+          type: integer
+          format: int64
+          minimum: 0
+      required:
+      - Count
+    BooleanStatus:
+      type: object
+      description: Boolean status object used for OperationStatus and PlatformElevated.
+      properties:
+        StatusName:
+          type: string
+          description: Name of the status datapoint.
+          example: OperationStatus
+        Value:
+          type: boolean
+          description: Boolean value as emitted by the current endpoint. Same semantic value as Status.
+        Status:
+          type: boolean
+          description: Boolean status value. Same semantic value as Value.
+        datetime:
+          type: string
+          format: date-time
+          example: '2026-06-03T14:14:53.788Z'
+      required:
+      - StatusName
+      - Value
+      - Status
+      - datetime
+    AccessSystemState:
+      type: object
+      description: GEDA access-system status included when addMetadata=true, if available for the machine.
+      properties:
+        StatusName:
+          type: string
+          example: AccessSystemActive
+        AccessSystemActive:
+          type: boolean
+          description: Whether the access system is active.
+        datetime:
+          type: string
+          format: date-time
+          example: '2026-06-03T14:14:53.788Z'
+      required:
+      - StatusName
+      - AccessSystemActive
+      - datetime
+    DiagnosticState:
+      type: object
+      description: GEDA diagnostic/status signal included when addMetadata=true.
+      properties:
+        StatusName:
+          type: string
+          description: Stable diagnostic/status signal name. Consumers must process any signal name according to this schema.
+          example: EmergencyStop
+        Value:
+          type: integer
+          enum:
+          - 0
+          - 1
+          description: Raw binary value from source.
+        Status:
+          type: boolean
+          description: Boolean representation of Value.
+        datetime:
+          type: string
+          format: date-time
+          example: '2026-06-03T14:14:53.788Z'
+      required:
+      - StatusName
+      - Value
+      - Status
+      - datetime
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        machineIdentifier:
+          type: string
+          nullable: true
+        traceId:
+          type: string
+          nullable: true
+      required:
+      - error
+  responses:
+    BadRequestError:
+      description: Invalid request parameters.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    UnauthorizedError:
+      description: Bearer token is missing, invalid or expired.
+      headers:
+        WWW-Authenticate:
+          schema:
+            type: string
+            example: Bearer realm="GEDA AEMP API"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ForbiddenError:
+      description: The authenticated token is not authorized to access this machine or fleet.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFoundError:
+      description: Page or endpoint not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: GEDA Central API Token
+      description: Static Bearer Token generated in GEDA Central.
