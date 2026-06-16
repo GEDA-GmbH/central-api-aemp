@@ -1,5 +1,7 @@
 # GEDA Machine Management AEMP 2.0 / ISO 15431-3 API
 
+<img src="img/logo.png" alt="GEDA Logo" width=auto />
+
 ## Deutsch
 
 Das GEDA Machine Management ist Bestandteil von GEDA Central (https://central.geda.de).
