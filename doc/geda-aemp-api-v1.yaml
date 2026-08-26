@@ -42,6 +42,9 @@ paths:
         Pagination is path-based using the `{page}` suffix. Page numbering starts at 1. Page size is 100.
 
 
+        The response contains a `Links` array. If a `{ "rel": "next", "href": "..." }` link is present in the `Links` array, additional pages are available.
+
+
         Use `addMetadata=true` to include optional GEDA metadata fields such as OperationStatus, PlatformElevated,
 
         AccessSystemState and DiagnosticStates.
@@ -63,10 +66,15 @@ paths:
                 snapshotWithMetadata:
                   summary: Snapshot page with optional GEDA metadata
                   value:
+                    version: 2
+                    Links:
+                    - rel: next
+                      href: https://central.geda.de/api/aemp/equipment/status/2?addMetadata=true
                     Equipment:
                     - EquipmentHeader:
                         OEMName: GEDA
                         Model: GEDA 1500 Z/ZP
+                        UnitInstallDateTime: '2026-08-26T12:57:51Z'
                         EquipmentID: '373839'
                         SerialNumber: '000123-98765'
                       Location: null
@@ -197,6 +205,15 @@ components:
       type: object
       description: Single page of the equipment status snapshot.
       properties:
+        version:
+          type: integer
+          description: Response schema version.
+          example: 2
+        Links:
+          type: array
+          description: Hypermedia navigation links for pagination.
+          items:
+            $ref: '#/components/schemas/Link'
         Equipment:
           type: array
           description: Equipment records for this page.
@@ -205,6 +222,21 @@ components:
             $ref: '#/components/schemas/Equipment'
       required:
       - Equipment
+    Link:
+      type: object
+      description: Hypermedia link for pagination navigation.
+      properties:
+        rel:
+          type: string
+          description: Relationship type (e.g. 'next').
+          example: next
+        href:
+          type: string
+          description: Target URL for the next page.
+          example: https://central.geda.de/api/aemp/equipment/status/2
+      required:
+      - rel
+      - href
     Equipment:
       type: object
       description: Single equipment record.
@@ -248,6 +280,12 @@ components:
           nullable: true
           description: Machine model.
           example: GEDA 1500 Z/ZP
+        UnitInstallDateTime:
+          type: string
+          format: date-time
+          nullable: true
+          description: Creation/registration timestamp of the machine in GEDA Central.
+          example: '2026-08-26T12:57:51Z'
         EquipmentID:
           type: string
           nullable: true

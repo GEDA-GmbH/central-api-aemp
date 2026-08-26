@@ -6,7 +6,7 @@ Depending on the fleet size getting all values might take some time.
 
 Pagination:
 1) Path-based pagination via /{page} (one-based)
-2) Continue while page size is lower than limit
+2) Continue while the 'Links' array in the response contains a link with rel='next'
 """
 
 import argparse
@@ -21,7 +21,6 @@ import requests
 DEFAULT_BASE_URL = "https://central.geda.de/api/aemp/equipment/status"
 DEFAULT_OUTPUT_FILE = "aemp_fleet_snapshot.json"
 DEFAULT_START_PAGE = 1
-DEFAULT_PAGE_SIZE_HINT = 100
 DEFAULT_TIMEOUT_SECONDS = 30
 DEFAULT_ADD_METADATA = True
 DEFAULT_MACHINE_IDENTIFIER = None
@@ -103,6 +102,24 @@ def extract_equipment(payload: dict | list) -> list[dict]:
     raise ValueError("Response does not contain Equipment[] or equipment[].")
 
 
+def has_next_page(payload: dict | list) -> bool:
+    """Determine whether there are more pages based on the 'Links' array in response."""
+    if not isinstance(payload, dict):
+        return False
+
+    links = payload.get("Links")
+    if links is None:
+        links = payload.get("links")
+
+    if isinstance(links, list):
+        return any(
+            isinstance(link, dict) and str(link.get("rel", "")).lower() == "next"
+            for link in links
+        )
+
+    return False
+
+
 def fetch_fleet_snapshot(
     base_url: str,
     token: str,
@@ -146,9 +163,8 @@ def fetch_fleet_snapshot(
 
         all_equipment.extend(equipment)
 
-        # page-based with fixed page size.
-        if len(equipment) < DEFAULT_PAGE_SIZE_HINT:
-            print("  Page size below fallback threshold. Last page reached.")
+        if not has_next_page(payload):
+            print("  No 'next' link found in response. Stopping pagination.")
             break
 
         current_page += 1
