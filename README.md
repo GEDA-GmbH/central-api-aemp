@@ -295,8 +295,12 @@ The script fetches all available pages from the AEMP endpoint and writes the res
 
 ### Access Credentials
 
-You can retrieve your API key in GEDA Central:
-https://central.geda.de/machines?feedtoken
+You can retrieve your API key in GEDA Central.
+
+Navigate to "Account Symbol" >> "Profile" (https://central.geda.de/user/profile) and scroll down to "Machine Management API Token".
+Copy the "API Token for the free AEMP API".
+
+**Do NOT share the API Token.**
 
 You must be signed in to GEDA Central and have the required permissions.
 
