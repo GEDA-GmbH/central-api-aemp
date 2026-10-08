@@ -140,7 +140,11 @@ Das Skript lädt alle verfügbaren Seiten vom AEMP-Endpoint und schreibt die Erg
 ### Zugangsdaten
 
 Den API-Key können Sie in GEDA Central abrufen:
-https://central.geda.de/machines?feedtoken
+
+Navigieren Sie zu "Account Symbol" >> "Profil" (https://central.geda.de/user/profile) und scrollen Sie nach unten bis zu "Machine Management API Token".
+Kopieren Sie den Token unter "API Token für die kostenlose AEMP API".
+
+**Geben Sie den Token niemals an andere Personen weiter.**
 
 Voraussetzung ist, dass Sie in GEDA Central angemeldet und entsprechend berechtigt sind.
 
